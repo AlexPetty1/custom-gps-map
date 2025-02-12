@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="popUpTest.js" defer></script>
+        <link rel="stylesheet" href="popup.css">
+
+        <style>
+            #popup {
+                width: 100px;
+                height: 100px;
+                background-color: #04af2f;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <h1>Cool Thing OOOO</h1>
+        <p>Test wowow</p>
+        <p id="demo"></p>
+
+        <div class="popup" id="popup1">
+            <p id="referenceText"><b>Edit Reference</b> <br></p>
+            <p>
+                <label for="latitude">Latitude</label>
+                  <input type="text" id="latitudeInput" size="20" maxlength="20" value="test">
+
+                <label for="longitude">Longitutude</label>
+                  <input type="text" id="longitudeInput" size="20" maxlength="20" value="">
+            </p>
+            <button type="button" id="exitPopup"><b>X</b></button>
+            <button type="button" id="useCurrentLocationButton">Use Current Location</button>
+            <button type="button">Move</button>
+            <button type="button" id="acceptPopup">Accept</button>
+        </div>
+
+        <div id="dogIcon">
+            <img width="40" src="images/dogIcon.png" draggable="false">
+        </div>
+
+        <button id="buttonPopup">
+            Toggle
+        </button>
+
+    </body>
+
+</html>

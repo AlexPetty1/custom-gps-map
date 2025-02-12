@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="testmap.js" defer></script>
+    </head>
+
+    <body>
+
+        <h1>Cool Thing OOOO</h1>
+        <p>Test wowow</p>
+        <p id="demo"></p>
+
+        X-coordinate
+        <input type="text" id="xCor">
+            <br>
+            <br>
+        Y-coordinate
+        <input type="text" id="yCor">
+
+        <div class="testImage">
+            <img id="mapImage" width="400" src="images/mapWashington.jpg">
+        </div>
+
+
+        <button type="button" id="addReferenceButton">Add reference</button>
+        <div id="editReference">
+
+        <div id="reference1">
+            <img width="20" src="images/soccerBall.jpg" draggable="false">
+        </div>
+
+        <div id="reference2">
+            <img width="20" src="images/soccerBall.jpg" draggable="false">
+        </div>
+
+        <div class="popup" id="popup1">
+            <p id="referenceText"><b>Edit Reference</b> <br></p>
+            <p>
+                <label for="latitude">Latitude</label>
+                  <input type="text" id="latitudeInput" size="20" maxlength="20" value="test">
+
+                <label for="longitude">Longitutude</label>
+                  <input type="text" id="longitudeInput" size="20" maxlength="20" value="">
+            </p>
+            <button type="button" id="exitPopup"><b>X</b></button>
+            <button type="button" id="useCurrentLocationButton">Use Current Location</button>
+            <button type="button">Move</button>
+            <button type="button" id="acceptPopup">Accept</button>
+        </div>
+
+    </body>
+
+</html>
