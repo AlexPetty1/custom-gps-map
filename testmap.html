@@ -2,6 +2,7 @@
 <html>
     <head>
         <script src="testmap.js" defer></script>
+        <link rel="stylesheet" type="text/css" href="main.css">
     </head>
 
     <body>
@@ -17,35 +18,39 @@
         Y-coordinate
         <input type="text" id="yCor">
 
+        <button type="button" id="addReferenceButton" draggable="false">Add reference</button>
+        <button type="button" id="toggleReferences" draggable="false">Hide references</button>
+
         <div class="testImage">
-            <img id="mapImage" width="400" src="images/mapWashington.jpg">
+            <img id="mapImage" width="600" src="images/mapOregon.jpg" draggable="false">
         </div>
 
-
-        <button type="button" id="addReferenceButton">Add reference</button>
-        <div id="editReference">
-
         <div id="reference1">
-            <img width="20" src="images/soccerBall.jpg" draggable="false">
+            <img width="20" src="images/referenceMarker.png" draggable="false">
         </div>
 
         <div id="reference2">
-            <img width="20" src="images/soccerBall.jpg" draggable="false">
+            <img width="20" src="images/referenceMarker.png" draggable="false">
         </div>
 
         <div class="popup" id="popup1">
             <p id="referenceText"><b>Edit Reference</b> <br></p>
             <p>
                 <label for="latitude">Latitude</label>
-                  <input type="text" id="latitudeInput" size="20" maxlength="20" value="test">
+                  <input type="number" id="latitudeInput" size="20" maxlength="20" value="test">
 
                 <label for="longitude">Longitutude</label>
-                  <input type="text" id="longitudeInput" size="20" maxlength="20" value="">
+                  <input type="number" id="longitudeInput" size="20" maxlength="20" value="">
             </p>
             <button type="button" id="exitPopup"><b>X</b></button>
             <button type="button" id="useCurrentLocationButton">Use Current Location</button>
-            <button type="button">Move</button>
+            <button type="button" id="movePopup">Move</button>
             <button type="button" id="acceptPopup">Accept</button>
+        </div>
+
+
+        <div id="locationMarker">
+            <img width="20" src="images/location.png" draggable="false">
         </div>
 
     </body>

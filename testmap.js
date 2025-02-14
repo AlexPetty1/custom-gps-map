@@ -8,11 +8,14 @@ var numberReferences = 0;
 
 var userGPSLatitude = null;
 var userGPSLongitude = null;
+var areReferencesShown = true;
 
 const testImage = document.getElementById('mapImage');
 const reference1Image = document.getElementById("reference1");
 const reference2Image = document.getElementById("reference2");
 const locationMarker = document.getElementById("locationMarker");
+
+const toggleReferencesButton = document.getElementById("toggleReferences");
 
 
 const LOCATION_MARKER_SIZE = 20;
@@ -71,7 +74,7 @@ function setUserGPS(position){
 function continouslyUpdatePosition(){
     setLocationCords(userGPSLongitude, userGPSLatitude);
 
-    setTimeout(continouslyUpdatePosition, 10000);
+    setTimeout(continouslyUpdatePosition, 1000);
 }
 continouslyUpdatePosition();
 
@@ -107,6 +110,11 @@ function onLoad(){
 
     var acceptPopupButton = document.getElementById("acceptPopup");
     acceptPopupButton.addEventListener('click', acceptPopup, false);
+
+    var movePopupButton = document.getElementById("movePopup");
+    movePopupButton.addEventListener('click', initiateMoveReference, false);
+
+    toggleReferencesButton.addEventListener('click', toggleReference, false);
 
     if(navigator.geolocation){
         navigator.geolocation.getCurrentPosition(setUserGPS);
@@ -168,6 +176,9 @@ function addingReference(){
         reference = reference2;
     }
 
+    showReferences();
+    toggleReferencesButton.textContent = "Hide References";
+
     var eventHandlerWrapper = function(){
         addReference(reference, eventHandlerWrapper)
     };
@@ -178,34 +189,69 @@ function addingReference(){
 }
 
 function addReference(reference, functionToRemove){
-    console.log("Add reference called");
-
     reference.pixelX = mouse.mapX;
     reference.pixelY = mouse.mapY;
 
-    console.log("Reference pixelX: " + reference.pixelX);
-    console.log("Reference pixelY: " + reference.pixelY);
+    var referenceImage = document.getElementById(reference.imageID);
+    referenceImage.style.display = "block";
 
     updateReferencePosition(reference);
+    openPopup(reference);
     numberReferences = numberReferences + 1;
     
 
     testImage.removeEventListener('click', functionToRemove);
 }
 
+
+
+function initiateMoveReference(){
+    var popup = document.getElementById('popup1');
+    popup.style.display = "none";
+
+    testImage.addEventListener('click', moveReference, false);
+    document.addEventListener('contextmenu', cancelMoveReference, false);
+}
+
+function moveReference(){
+    var reference = editReferencePopup.referenceModifing
+    reference.pixelX = mouse.mapX;
+    reference.pixelY = mouse.mapY;
+
+    updateReferencePosition(reference);
+    openPopup(reference);
+
+    var popup = document.getElementById('popup1');
+    popup.style.display = 'block';
+
+    testImage.removeEventListener('click', moveReference, false);
+    document.removeEventListener('contextmenu', cancelMoveReference, false);
+}
+
+function cancelMoveReference(event){
+    var popup = document.getElementById('popup1');
+    popup.style.display = 'block';
+
+    event.preventDefault();
+    testImage.removeEventListener('click', moveReference, false);
+    document.removeEventListener('contextmenu', cancelMoveReference, false);
+}
+
+
+
 function setReferences(){
     // Bend
-    reference1.gpsX = -121.3131;
-    reference1.gpsY = 44.0543;
-    reference1.pixelX = 247;
-    reference1.pixelY = 215;
+    // reference1.gpsX = -121.3131;
+    // reference1.gpsY = 44.0543;
+    // reference1.pixelX = 247;
+    // reference1.pixelY = 215;
     reference1.imageID = "reference1"
 
     // Pendleton
-    reference2.gpsX = -118.807;
-    reference2.gpsY = 45.662;
-    reference2.pixelX = 418;
-    reference2.pixelY = 367;
+    // reference2.gpsX = -118.807;
+    // reference2.gpsY = 45.662;
+    // reference2.pixelX = 418;
+    // reference2.pixelY = 367;
     reference2.imageID = "reference2"
 }
 
@@ -223,11 +269,6 @@ function setLocationCords(gpsX, gpsY){
     var gpsToPixelX = mapRect.width / mapGPSWidth;
     var gpsToPixelY = mapRect.height / mapGPSHeight;
 
-    console.log("GPS To Pixel X set: " + gpsToPixelX);
-    console.log("GPS To Pixel Y set: " + gpsToPixelY);
-
-    console.log(gpsY - mapGPSBLy);
-
     locationMarker.style.position = 'absolute';
     xLocation = mapRect.left + (gpsX - mapGPSBLx) * gpsToPixelX;
     yLocation = mapRect.bottom - (gpsY - mapGPSBLy) * gpsToPixelY;
@@ -237,12 +278,43 @@ function setLocationCords(gpsX, gpsY){
     xLocation = xLocation - iconSize/2;
     yLocation = yLocation - iconSize;
 
-    console.log("X location icon new: " + xLocation);
-    console.log("Y location icon new: " + yLocation);
-
     locationMarker.style.top = yLocation + 'px';
     locationMarker.style.left = xLocation + 'px';
 }
+
+
+
+
+function toggleReference(){
+    if(areReferencesShown == true){
+        hideReferences();
+        toggleReferencesButton.textContent = "Show References";
+    } else {
+        showReferences();
+        toggleReferencesButton.textContent = "Hide References";
+    }
+}
+
+function hideReferences(){
+    areReferencesShown = false;
+
+    reference1Image.style.display = 'none';
+    reference2Image.style.display = 'none';
+}
+
+function showReferences(){
+    areReferencesShown = true;
+    
+    if(reference1.pixelX != null){
+        reference1Image.style.display = 'block';
+    }
+
+    if(reference2.pixelX != null){
+        reference2Image.style.display = 'block';
+    }
+}
+
+
 
 
 function showCordsMouse(event){
