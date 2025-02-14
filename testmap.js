@@ -1,11 +1,23 @@
 window.onload = onLoad;
 
-var mapGPSBLx = -124.9;
-var mapGPSBLy = 45.1;
-var mapGPSWidth = 8.2;
-var mapGPSHeight = 3.8;
-
+var mapGPSBLx = null;
+var mapGPSBLy = null;
+var mapGPSWidth = null;
+var mapGPSHeight = null;
 var numberReferences = 0;
+
+var userGPSLatitude = null;
+var userGPSLongitude = null;
+
+const testImage = document.getElementById('mapImage');
+const reference1Image = document.getElementById("reference1");
+const reference2Image = document.getElementById("reference2");
+const locationMarker = document.getElementById("locationMarker");
+
+
+const LOCATION_MARKER_SIZE = 20;
+const REFERENCE_IMAGE_WIDTH = 20;
+const REFERENCE_IMAGE_HEIGHT = 28;
 
 class Mouse{
     constructor(){
@@ -22,21 +34,53 @@ class Reference{
       this.gpsY = null
       this.pixelX = null
       this.pixelY = null
+      this.imageID = null
     }  
 }
 
+class EditReferencePopup{
+    constructor(){
+        this.referenceModifing = null;
+    }
+}
+
+var editReferencePopup = new EditReferencePopup;
 var reference1 = new Reference();
 var reference2 = new Reference();
 var mouse = new Mouse();
 
+
+function continouslyUpdateUserGPS() {
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(setUserGPS);
+    }
+
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(fillPopupUseCurrentLocation);
+    }
+    
+    setTimeout(continouslyUpdateUserGPS, 5000);
+}
+
+function setUserGPS(position){
+    userGPSLatitude = position.coords.latitude;
+    userGPSLongitude = position.coords.longitude;
+}
+
+
+function continouslyUpdatePosition(){
+    setLocationCords(userGPSLongitude, userGPSLatitude);
+
+    setTimeout(continouslyUpdatePosition, 10000);
+}
+continouslyUpdatePosition();
+
+
 function onLoad(){
     setReferences();
-
-
     setMapFromReferences(reference1, reference2);
-
-    //yakima
-    setIconCords(-120.665365, 46.625374);
+    updateReferencePosition(reference1);
+    updateReferencePosition(reference2);
 
     //add event listeners
     window.addEventListener('mousemove', showCordsMouse, false);
@@ -44,6 +88,61 @@ function onLoad(){
 
     let addReferenceButton = document.getElementById('addReferenceButton');
     addReferenceButton.addEventListener('mouseup', addingReference, false)
+
+
+    //popup
+    reference1Image.addEventListener('click', function(){
+        openPopup(reference1);
+    }, false);
+
+    reference2Image.addEventListener('click', function(){
+        openPopup(reference2);
+    }, false);
+
+    var popupClose = document.getElementById('exitPopup');
+    popupClose.addEventListener('mouseup', closePopup, false);
+
+    var useCurrentLocationButton = document.getElementById("useCurrentLocationButton");
+    useCurrentLocationButton.addEventListener('click', useCurrentLocation, false);
+
+    var acceptPopupButton = document.getElementById("acceptPopup");
+    acceptPopupButton.addEventListener('click', acceptPopup, false);
+
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(setUserGPS);
+    }
+}
+
+
+window.addEventListener('resize', function(event) {
+    updateReferencePosition(reference1);
+    updateReferencePosition(reference2);
+    setLocationCords(userGPSLongitude, userGPSLatitude);
+}, true);
+
+
+function updateReferencePosition(reference){
+    if(reference.pixelX == null){
+        return
+    }
+
+    if(reference.pixelY == null){
+        return
+    }
+
+
+    let mapRect = testImage.getBoundingClientRect();
+    let referenceImage = document.getElementById(reference.imageID);
+
+    referenceImage.style.position = 'absolute';
+    xLocation = mapRect.left + reference.pixelX;
+    yLocation = mapRect.bottom - reference.pixelY;
+
+    xLocation = xLocation - REFERENCE_IMAGE_WIDTH / 2;
+    yLocation = yLocation - REFERENCE_IMAGE_HEIGHT;
+
+    referenceImage.style.top = yLocation + 'px';
+    referenceImage.style.left = xLocation + 'px';
 }
 
 function updateMouseCords(event){
@@ -53,8 +152,7 @@ function updateMouseCords(event){
     mouse.globalY = yMouse;
 
 
-    let map = document.getElementById('mapImage');
-    let mapRect = map.getBoundingClientRect();
+    let mapRect = testImage.getBoundingClientRect();
     mouse.mapX = xMouse - mapRect.left;
     mouse.mapY = mapRect.bottom - yMouse;
 }
@@ -65,56 +163,63 @@ function addingReference(){
         return;
     }
 
-    let referenceID = 'reference1';
+    let reference = reference1;
     if(numberReferences == 1){
-        referenceID = 'reference2';
+        reference = reference2;
     }
 
     var eventHandlerWrapper = function(){
-        addReference(referenceID, eventHandlerWrapper)
+        addReference(reference, eventHandlerWrapper)
     };
 
-    let testImage = document.getElementById('mapImage');
     testImage.addEventListener('click', eventHandlerWrapper, false);
 
     window.addEventListener
 }
 
-function addReference(id, reference, functionToRemove){
+function addReference(reference, functionToRemove){
     console.log("Add reference called");
-    console.log(id);
 
-    let reference = document.getElementById(id);
-    reference.style.position = 'absolute';
-    reference.style.top = mouse.globalY + 'px';
-    reference.style.left = mouse.globalX + 'px';
+    reference.pixelX = mouse.mapX;
+    reference.pixelY = mouse.mapY;
+
+    console.log("Reference pixelX: " + reference.pixelX);
+    console.log("Reference pixelY: " + reference.pixelY);
+
+    updateReferencePosition(reference);
     numberReferences = numberReferences + 1;
-
     
 
-    let testImage = document.getElementById('mapImage');
     testImage.removeEventListener('click', functionToRemove);
 }
 
 function setReferences(){
-    // aberdeen
-    reference1.gpsX = -123.824;
-    reference1.gpsY = 46.970;
-    reference1.pixelX = 44;
-    reference1.pixelY = 125;
+    // Bend
+    reference1.gpsX = -121.3131;
+    reference1.gpsY = 44.0543;
+    reference1.pixelX = 247;
+    reference1.pixelY = 215;
+    reference1.imageID = "reference1"
 
-    // Bellingham
-    reference2.gpsX = -122.486;
-    reference2.gpsY = 48.747;
-    reference2.pixelX = 115;
-    reference2.pixelY = 252;
+    // Pendleton
+    reference2.gpsX = -118.807;
+    reference2.gpsY = 45.662;
+    reference2.pixelX = 418;
+    reference2.pixelY = 367;
+    reference2.imageID = "reference2"
 }
 
 
-function setIconCords(gpsX, gpsY){
-    var icon = document.getElementById('dogIcon');
-    var map = document.getElementById('mapImage');
-    var mapRect = map.getBoundingClientRect();
+function setLocationCords(gpsX, gpsY){
+    if(gpsX == null){
+        return;
+    }
+
+    if(gpsY == null){
+        return;
+    }
+
+    var mapRect = testImage.getBoundingClientRect();
     var gpsToPixelX = mapRect.width / mapGPSWidth;
     var gpsToPixelY = mapRect.height / mapGPSHeight;
 
@@ -123,7 +228,7 @@ function setIconCords(gpsX, gpsY){
 
     console.log(gpsY - mapGPSBLy);
 
-    icon.style.position = 'absolute';
+    locationMarker.style.position = 'absolute';
     xLocation = mapRect.left + (gpsX - mapGPSBLx) * gpsToPixelX;
     yLocation = mapRect.bottom - (gpsY - mapGPSBLy) * gpsToPixelY;
 
@@ -135,8 +240,8 @@ function setIconCords(gpsX, gpsY){
     console.log("X location icon new: " + xLocation);
     console.log("Y location icon new: " + yLocation);
 
-    icon.style.top = yLocation + 'px';
-    icon.style.left = xLocation + 'px';
+    locationMarker.style.top = yLocation + 'px';
+    locationMarker.style.left = xLocation + 'px';
 }
 
 
@@ -146,16 +251,22 @@ function showCordsMouse(event){
     xDisplay = document.getElementById("xCor");
     yDisplay = document.getElementById("yCor");
 
-    let map = document.getElementById('mapImage');
-    let mapRect = map.getBoundingClientRect();
+    let mapRect = testImage.getBoundingClientRect();
     xDisplay.value = xMouse - mapRect.left;
     yDisplay.value = mapRect.bottom - yMouse;
 }
 
 
 function setMapFromReferences(reference1, reference2){
-    let map = document.getElementById('mapImage');
-    let mapRect = map.getBoundingClientRect();
+    if(isReferenceFilled(reference1) == false){
+        return;
+    }
+
+    if(isReferenceFilled(reference2) == false){
+        return;
+    }
+
+    let mapRect = testImage.getBoundingClientRect();
 
     var gpsToPixelX = Math.abs((reference1.pixelX - reference2.pixelX) / (reference1.gpsX - reference2.gpsX));
     var gpsToPixelY = Math.abs((reference1.pixelY - reference2.pixelY) / (reference1.gpsY - reference2.gpsY));
@@ -164,11 +275,96 @@ function setMapFromReferences(reference1, reference2){
 
     mapGPSWidth = pixelToGPSX * mapRect.width;
     mapGPSHeight = pixelToGPSY * mapRect.height;
-    console.log("New gps width: " + mapGPSWidth);
-    console.log("New gps height: " + mapGPSHeight);
-
     mapGPSBLx = reference1.gpsX - (reference1.pixelX * pixelToGPSX);
     mapGPSBLy = reference1.gpsY - (reference1.pixelY * pixelToGPSY);
-    console.log("GPS X: " + mapGPSBLx);
-    console.log("GPS Y: " + mapGPSBLy);
+}
+
+function isReferenceFilled(reference){
+    if( reference.gpsX == null || reference.gpsY == null ||
+        reference.pixelX == null || reference.pixelY == null){
+        return false
+    }
+
+    return true;
+}
+
+
+
+////// Popup section ///////
+
+function openPopup(reference){
+    var popup = document.getElementById('popup1');
+    popup.style.display = "block";
+
+    editReferencePopup.referenceModifing = reference;
+
+    var referenceImage = document.getElementById(reference.imageID);
+    var referenceBounding = referenceImage.getBoundingClientRect();
+
+    var latitudeInput = document.getElementById("latitudeInput");
+    if(reference.gpsX != null){
+        latitudeInput.value= reference.gpsY;
+    } else {
+        latitudeInput.value= "";
+    }
+
+    var longitudeInput = document.getElementById("longitudeInput");
+    if(reference.gpsY != null){
+        longitudeInput.value = reference.gpsX;
+    } else {
+        longitudeInput.value = "";
+    }
+
+    xPosition = referenceBounding.left + REFERENCE_IMAGE_WIDTH / 2;
+    yPosition = referenceBounding.top + REFERENCE_IMAGE_HEIGHT; 
+
+    popup.style.position = 'absolute';
+    popup.style.top = yPosition + "px";
+    popup.style.left = xPosition + "px";
+
+    console.log("Reference bounding: " + referenceBounding.top)
+}
+
+function closePopup(){
+    console.log("Close popup");
+    var popup = document.getElementById('popup1');
+    popup.style.display = "none";
+}
+
+function useCurrentLocation(){
+    console.log("Use current location used");
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(fillPopupUseCurrentLocation);
+    }
+}
+
+function fillPopupUseCurrentLocation(position){
+    var latitudeInput = document.getElementById("latitudeInput");
+    latitudeInput.value= position.coords.latitude;
+
+    var longitudeInput = document.getElementById("longitudeInput");
+    longitudeInput.value = position.coords.longitude;
+}
+
+function acceptPopup(){
+    var latitudeInput = document.getElementById("latitudeInput");
+    var longitudeInput = document.getElementById("longitudeInput");
+
+    if(latitudeInput.value == ""){
+        return;
+    }
+
+    if(longitudeInput.value == ""){
+        return;
+    }
+
+    editReferencePopup.referenceModifing.gpsX = longitudeInput.value;
+    editReferencePopup.referenceModifing.gpsY = latitudeInput.value;
+
+    var popup = document.getElementById('popup1');
+    popup.style.display = "none";
+
+    //updates, map
+    setMapFromReferences(reference1, reference2);
+    setLocationCords(userGPSLongitude, userGPSLatitude);
 }
