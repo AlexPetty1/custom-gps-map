@@ -1,0 +1,40 @@
+body {       /* Can alternatively define in html {}. */
+    /* font-family:; /* Define with at least one font name and its related generic family name.*/
+    margin-top: 0;
+    margin: auto;
+    padding: 0px;
+    max-width: 1000px;
+}
+
+
+.popup{
+    background-color: #ffce96ff;
+    width: 200px;
+    height: 160px;
+    padding: 10px;
+    border-style: solid;
+    border-width: 4px;
+    border-color:black;
+    position: relative;
+}
+
+#exitPopup{
+    border-style: solid;
+    border-width: 4px;
+    border-color:black;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: -4px;
+}
+ 
+#referenceText{
+    margin-top: -6px;
+    margin-bottom: -10px;
+    font-size: larger;
+}
+
+#acceptPopup{
+    width: 195px;
+    margin-top: 3px;
+}
