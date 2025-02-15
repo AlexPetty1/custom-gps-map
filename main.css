@@ -1,14 +1,103 @@
-body {       /* Can alternatively define in html {}. */
-    /* font-family:; /* Define with at least one font name and its related generic family name.*/
-    margin-top: 0;
-    margin: auto;
-    padding: 0px;
-    max-width: 1000px;
+
+
+:root {
+    --custom-color-name: name;
+    --BeigeBackground: #ecd1b3ff;
+    --DarkBrownSelect: #654f36ff;
+
+    --LightGray: #595959;
+    --LightBeige: #ede0c9ff;
+    --LightOrange: #ffce96ff;
 }
 
 
+
+
+body { 
+    margin: auto;
+    max-width: 800px;
+    min-width: 500px;
+    background-color: var(--BeigeBackground);
+    margin-bottom: 0;
+    padding: 20px;
+}
+
+#mapDiv {
+    width: fit-content;
+    margin:auto;
+}
+
+h2{
+    text-align: center;
+    font-size: 2.5em;
+}
+
+html {
+    background-color: var(--LightGray);
+}
+
+nav {
+    margin-top: 10px;
+    text-align: center;
+}
+
+nav a {
+    background-color: var(--LightOrange);
+    border: 6px solid var(--LightGray);
+    padding: 3px 20px 5px 20px;
+    margin-right: 0px;
+    color: black;
+    font-size: 1.5em;
+}
+
+nav a:hover {
+    background-color: var(--DarkBrownSelect);
+    border-color: black;
+    color: var(--BeigeBackground);
+  }
+
+
+.mapToolbarButton{
+    border-color: var(--DarkBrownSelect);
+    border-width: 5px;
+    border-bottom-width: 0px;
+    border-style: solid;
+    background-color: var(--LightBeige);
+    word-wrap: break-word;
+    width: 100px;
+    height: 60px;
+}
+
+.mapInfos{
+    white-space: pre;
+}
+
+#mapImage{
+    border-color: var(--DarkBrownSelect);
+    border-width: 5px;
+    border-style: solid;
+}
+
+h1{
+    font-size: 4em;
+    text-align: center;
+}
+
+#welcomeText{
+    margin: 50px;
+    border-color: black;
+    border-width: 3px;
+    border-style: solid;
+
+    background-color: var(--LightBeige);
+    padding: 30px;
+    font-size: 1.5em;
+}
+
+
+
 .popup{
-    background-color: #ffce96ff;
+    background-color: var(--LightOrange);
     width: 200px;
     height: 160px;
     padding: 10px;

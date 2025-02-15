@@ -15,8 +15,16 @@ const reference1Image = document.getElementById("reference1");
 const reference2Image = document.getElementById("reference2");
 const locationMarker = document.getElementById("locationMarker");
 
+const addReferenceButton = document.getElementById("addReferenceButton");
 const toggleReferencesButton = document.getElementById("toggleReferences");
+const popupForReference = document.getElementById("popup1");
 
+const mapInfo1 = document.getElementById("mapInfo1");
+const mapInfo2 = document.getElementById("mapInfo2");
+
+
+const hiddenLoadFile = document.getElementById("hiddenLoadFile");
+const uploadFileButton = document.getElementById("uploadFile");
 
 const LOCATION_MARKER_SIZE = 20;
 const REFERENCE_IMAGE_WIDTH = 20;
@@ -54,20 +62,16 @@ var mouse = new Mouse();
 
 
 function continouslyUpdateUserGPS() {
-    if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(setUserGPS);
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(setUserGPS);
     }
-
-    if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(fillPopupUseCurrentLocation);
-    }
-    
-    setTimeout(continouslyUpdateUserGPS, 5000);
 }
+continouslyUpdateUserGPS();
 
 function setUserGPS(position){
     userGPSLatitude = position.coords.latitude;
     userGPSLongitude = position.coords.longitude;
+    console.log("Set user gps: " + userGPSLatitude);
 }
 
 
@@ -84,9 +88,9 @@ function onLoad(){
     setMapFromReferences(reference1, reference2);
     updateReferencePosition(reference1);
     updateReferencePosition(reference2);
+    hideElementsAtStart();
 
     //add event listeners
-    window.addEventListener('mousemove', showCordsMouse, false);
     window.addEventListener('mousemove', updateMouseCords, false);
 
     let addReferenceButton = document.getElementById('addReferenceButton');
@@ -106,7 +110,7 @@ function onLoad(){
     popupClose.addEventListener('mouseup', closePopup, false);
 
     var useCurrentLocationButton = document.getElementById("useCurrentLocationButton");
-    useCurrentLocationButton.addEventListener('click', useCurrentLocation, false);
+    useCurrentLocationButton.addEventListener('click', fillPopupWithCurrentLocation, false);
 
     var acceptPopupButton = document.getElementById("acceptPopup");
     acceptPopupButton.addEventListener('click', acceptPopup, false);
@@ -115,10 +119,15 @@ function onLoad(){
     movePopupButton.addEventListener('click', initiateMoveReference, false);
 
     toggleReferencesButton.addEventListener('click', toggleReference, false);
+    uploadFileButton.addEventListener('click', uploadMapConfirmation, false);
+}
 
-    if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(setUserGPS);
-    }
+
+function hideElementsAtStart(){
+    reference1Image.style.display = "none";
+    reference2Image.style.display = "none";
+    popupForReference.style.display = "none";
+    locationMarker.style.display = "none";
 }
 
 
@@ -146,8 +155,11 @@ function updateReferencePosition(reference){
     xLocation = mapRect.left + reference.pixelX;
     yLocation = mapRect.bottom - reference.pixelY;
 
+
     xLocation = xLocation - REFERENCE_IMAGE_WIDTH / 2;
     yLocation = yLocation - REFERENCE_IMAGE_HEIGHT;
+
+    yLocation = yLocation + document.documentElement.scrollTop;
 
     referenceImage.style.top = yLocation + 'px';
     referenceImage.style.left = xLocation + 'px';
@@ -178,15 +190,15 @@ function addingReference(){
 
     showReferences();
     toggleReferencesButton.textContent = "Hide References";
+    addReferenceButton.style.borderColor = "black";
 
     var eventHandlerWrapper = function(){
         addReference(reference, eventHandlerWrapper)
     };
 
     testImage.addEventListener('click', eventHandlerWrapper, false);
-
-    window.addEventListener
 }
+
 
 function addReference(reference, functionToRemove){
     reference.pixelX = mouse.mapX;
@@ -199,7 +211,7 @@ function addReference(reference, functionToRemove){
     openPopup(reference);
     numberReferences = numberReferences + 1;
     
-
+    addReferenceButton.style.borderColor = "#654f36ff";
     testImage.removeEventListener('click', functionToRemove);
 }
 
@@ -257,19 +269,33 @@ function setReferences(){
 
 
 function setLocationCords(gpsX, gpsY){
-    if(gpsX == null){
+    if(numberReferences < 2){
+        mapInfo1.textContent = "Two map references are needed to show location: \n";  
+        mapInfo1.textContent += "    Click on add reference in the tool bar to add a reference";
         return;
     }
 
-    if(gpsY == null){
+    if(reference1.gpsX == null){
+        mapInfo1.textContent = "A reference needs gps information to show location: \r\n"  
+        mapInfo1.textContent += "    Click on the reference, edit the add the gps cordinates, then click accept";
         return;
     }
+
+    if(reference2.gpsX == null){
+        mapInfo1.textContent = "A reference needs gps information to show location: \r\n"  
+        mapInfo1.textContent +="    Click on the reference, edit the add the gps cordinates, then click accept";
+        return;
+    }
+
+    mapInfo1.textContent = "";
 
     var mapRect = testImage.getBoundingClientRect();
     var gpsToPixelX = mapRect.width / mapGPSWidth;
     var gpsToPixelY = mapRect.height / mapGPSHeight;
 
+
     locationMarker.style.position = 'absolute';
+    locationMarker.style.display = 'block';
     xLocation = mapRect.left + (gpsX - mapGPSBLx) * gpsToPixelX;
     yLocation = mapRect.bottom - (gpsY - mapGPSBLy) * gpsToPixelY;
 
@@ -281,7 +307,6 @@ function setLocationCords(gpsX, gpsY){
     locationMarker.style.top = yLocation + 'px';
     locationMarker.style.left = xLocation + 'px';
 }
-
 
 
 
@@ -316,20 +341,9 @@ function showReferences(){
 
 
 
-
-function showCordsMouse(event){
-    let xMouse = event.clientX;
-    let yMouse = event.clientY;
-    xDisplay = document.getElementById("xCor");
-    yDisplay = document.getElementById("yCor");
-
-    let mapRect = testImage.getBoundingClientRect();
-    xDisplay.value = xMouse - mapRect.left;
-    yDisplay.value = mapRect.bottom - yMouse;
-}
-
-
 function setMapFromReferences(reference1, reference2){
+    console.log(isReferenceFilled(reference1));
+
     if(isReferenceFilled(reference1) == false){
         return;
     }
@@ -390,21 +404,29 @@ function openPopup(reference){
     xPosition = referenceBounding.left + REFERENCE_IMAGE_WIDTH / 2;
     yPosition = referenceBounding.top + REFERENCE_IMAGE_HEIGHT; 
 
+    yPosition = yPosition + document.documentElement.scrollTop;
+
     popup.style.position = 'absolute';
     popup.style.top = yPosition + "px";
     popup.style.left = xPosition + "px";
-
-    console.log("Reference bounding: " + referenceBounding.top)
 }
 
 function closePopup(){
-    console.log("Close popup");
     var popup = document.getElementById('popup1');
     popup.style.display = "none";
 }
 
+function fillPopupWithCurrentLocation(){
+    console.log("Fill popup called: " + userGPSLatitude);
+    var latitudeInput = document.getElementById("latitudeInput");
+    latitudeInput.value= userGPSLatitude
+
+    var longitudeInput = document.getElementById("longitudeInput");
+    longitudeInput.value = userGPSLongitude;
+}
+
+
 function useCurrentLocation(){
-    console.log("Use current location used");
     if(navigator.geolocation){
         navigator.geolocation.getCurrentPosition(fillPopupUseCurrentLocation);
     }
@@ -440,3 +462,18 @@ function acceptPopup(){
     setMapFromReferences(reference1, reference2);
     setLocationCords(userGPSLongitude, userGPSLatitude);
 }
+
+function uploadMapConfirmation(){
+    if (confirm("Are you sure you want to switch to a different image for the map? References are currently not saved, modifying them on a different image then coming back will not restore them to their current state") == false) {
+        return;
+    }
+
+    hiddenLoadFile.click();
+}
+
+var loadFile = function(event) {
+    testImage.src = URL.createObjectURL(event.target.files[0]);
+    testImage.onload = function() {
+        URL.revokeObjectURL(testImage.src) // free memory
+    }
+};

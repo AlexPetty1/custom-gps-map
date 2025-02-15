@@ -1,28 +1,32 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script src="testmap.js" defer></script>
+        <script src="main.js" defer></script>
         <link rel="stylesheet" type="text/css" href="main.css">
     </head>
 
     <body>
 
-        <h1>Cool Thing OOOO</h1>
-        <p>Test wowow</p>
-        <p id="demo"></p>
+        <nav class="pageMenu">
+            <a href="index.html">Welcome</a>
+            <a href="viewMap.html">View</a>
+        </nav>
 
-        X-coordinate
-        <input type="text" id="xCor">
+        <h2>View Map</h2>
+
+        <div id="mapDiv">
+            <button type="button" class="mapToolbarButton" id="addReferenceButton" draggable="false">
+                Add Reference</button>
+            <button type="button" class="mapToolbarButton" id="toggleReferences" draggable="false">
+                Hide References</button>
+            <button type="button" class="mapToolbarButton" id="uploadFile" draggable="false">
+                Change Image</button>
+            
             <br>
-            <br>
-        Y-coordinate
-        <input type="text" id="yCor">
-
-        <button type="button" id="addReferenceButton" draggable="false">Add reference</button>
-        <button type="button" id="toggleReferences" draggable="false">Hide references</button>
-
-        <div class="testImage">
             <img id="mapImage" width="600" src="images/mapOregon.jpg" draggable="false">
+            <p class="mapInfos" id="mapInfo1"></p>
+            <br>
+            <p class="mapInfos" id= "mapInfo2"></p>
         </div>
 
         <div id="reference1">
@@ -53,6 +57,9 @@
             <img width="20" src="images/location.png" draggable="false">
         </div>
 
+        <input hidden="true" id="hiddenLoadFile" type="file" accept="image/*" onchange="loadFile(event)">
+
     </body>
+
 
 </html>
