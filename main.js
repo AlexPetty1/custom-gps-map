@@ -277,13 +277,13 @@ function setLocationCords(gpsX, gpsY){
 
     if(reference1.gpsX == null){
         mapInfo1.textContent = "A reference needs gps information to show location: \r\n"  
-        mapInfo1.textContent += "    Click on the reference, edit the add the gps cordinates, then click accept";
+        mapInfo1.textContent += "    Click on the reference, edit the gps cordinates, then click accept";
         return;
     }
 
     if(reference2.gpsX == null){
         mapInfo1.textContent = "A reference needs gps information to show location: \r\n"  
-        mapInfo1.textContent +="    Click on the reference, edit the add the gps cordinates, then click accept";
+        mapInfo1.textContent +="    Click on the reference, edit the gps cordinates, then click accept";
         return;
     }
 
@@ -298,6 +298,9 @@ function setLocationCords(gpsX, gpsY){
     locationMarker.style.display = 'block';
     xLocation = mapRect.left + (gpsX - mapGPSBLx) * gpsToPixelX;
     yLocation = mapRect.bottom - (gpsY - mapGPSBLy) * gpsToPixelY;
+
+    yLocation = yLocation + document.documentElement.scrollTop;
+    xLocation = xLocation + document.documentElement.scrollLeft;
 
     // adjusts location so bottom middle is at location
     var iconSize = 20;
