@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="main.js" defer></script>
+        <link rel="stylesheet" type="text/css" href="main.css">
+    </head>
+
+    <body>
+
+        <nav class="pageMenu">
+            <a href="index.html">Welcome</a>
+            <a href="viewMap.html">View</a>
+        </nav>
+
+        <h2>View Map</h2>
+
+        <div id="mapDiv">
+            <button type="button" class="mapToolbarButton" id="addReferenceButton" draggable="false">
+                Add Reference</button>
+            <button type="button" class="mapToolbarButton" id="toggleReferences" draggable="false">
+                Hide References</button>
+            <button type="button" class="mapToolbarButton" id="uploadFile" draggable="false">
+                Change Image</button>
+            
+            <br>
+            <img id="mapImage" width="600" src="images/mapOregon.jpg" draggable="false">
+            <p class="mapInfos" id="mapInfo1"></p>
+            <br>
+            <p class="mapInfos" id= "mapInfo2"></p>
+        </div>
+
+        <div id="reference1">
+            <img width="20" src="images/referenceMarker.png" draggable="false">
+        </div>
+
+        <div id="reference2">
+            <img width="20" src="images/referenceMarker.png" draggable="false">
+        </div>
+
+        <div class="popup" id="popup1">
+            <p id="referenceText"><b>Edit Reference</b> <br></p>
+            <p>
+                <label for="latitude">Latitude</label>
+                  <input type="number" id="latitudeInput" size="20" maxlength="20" value="test">
+
+                <label for="longitude">Longitutude</label>
+                  <input type="number" id="longitudeInput" size="20" maxlength="20" value="">
+            </p>
+            <button type="button" id="exitPopup"><b>X</b></button>
+            <button type="button" id="useCurrentLocationButton">Use Current Location</button>
+            <button type="button" id="movePopup">Move</button>
+            <button type="button" id="acceptPopup">Accept</button>
+        </div>
+
+
+        <div id="locationMarker">
+            <img width="20" src="images/location.png" draggable="false">
+        </div>
+
+        <input hidden="true" id="hiddenLoadFile" type="file" accept="image/*" onchange="loadFile(event)">
+
+    </body>
+
+
+</html>
