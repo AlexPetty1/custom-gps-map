@@ -17,7 +17,10 @@ const locationMarker = document.getElementById("locationMarker");
 
 const addReferenceButton = document.getElementById("addReferenceButton");
 const toggleReferencesButton = document.getElementById("toggleReferences");
+
 const popupForReference = document.getElementById("popup1");
+const popupLongitudeInput = document.getElementById("longitudeInput");
+const popupLatitudeInput = document.getElementById("latitudeInput");
 
 const mapInfo1 = document.getElementById("mapInfo1");
 const mapInfo2 = document.getElementById("mapInfo2");
@@ -71,7 +74,6 @@ continouslyUpdateUserGPS();
 function setUserGPS(position){
     userGPSLatitude = position.coords.latitude;
     userGPSLongitude = position.coords.longitude;
-    console.log("Set user gps: " + userGPSLatitude);
 }
 
 
@@ -84,7 +86,7 @@ continouslyUpdatePosition();
 
 
 function onLoad(){
-    setReferences();
+    setupReferences();
     setMapFromReferences(reference1, reference2);
     updateReferencePosition(reference1);
     updateReferencePosition(reference2);
@@ -93,7 +95,7 @@ function onLoad(){
     //add event listeners
     window.addEventListener('mousemove', updateMouseCords, false);
 
-    let addReferenceButton = document.getElementById('addReferenceButton');
+    var addReferenceButton = document.getElementById('addReferenceButton');
     addReferenceButton.addEventListener('mouseup', addingReference, false)
 
 
@@ -135,6 +137,7 @@ window.addEventListener('resize', function(event) {
     updateReferencePosition(reference1);
     updateReferencePosition(reference2);
     setLocationCords(userGPSLongitude, userGPSLatitude);
+    movePopupToReference();
 }, true);
 
 
@@ -218,8 +221,7 @@ function addReference(reference, functionToRemove){
 
 
 function initiateMoveReference(){
-    var popup = document.getElementById('popup1');
-    popup.style.display = "none";
+    popupForReference.style.display = "none";
 
     testImage.addEventListener('click', moveReference, false);
     document.addEventListener('contextmenu', cancelMoveReference, false);
@@ -233,16 +235,14 @@ function moveReference(){
     updateReferencePosition(reference);
     openPopup(reference);
 
-    var popup = document.getElementById('popup1');
-    popup.style.display = 'block';
+    popupForReference.style.display = 'block';
 
     testImage.removeEventListener('click', moveReference, false);
     document.removeEventListener('contextmenu', cancelMoveReference, false);
 }
 
 function cancelMoveReference(event){
-    var popup = document.getElementById('popup1');
-    popup.style.display = 'block';
+    popupForReference.style.display = 'block';
 
     event.preventDefault();
     testImage.removeEventListener('click', moveReference, false);
@@ -251,19 +251,8 @@ function cancelMoveReference(event){
 
 
 
-function setReferences(){
-    // Bend
-    // reference1.gpsX = -121.3131;
-    // reference1.gpsY = 44.0543;
-    // reference1.pixelX = 247;
-    // reference1.pixelY = 215;
+function setupReferences(){
     reference1.imageID = "reference1"
-
-    // Pendleton
-    // reference2.gpsX = -118.807;
-    // reference2.gpsY = 45.662;
-    // reference2.pixelX = 418;
-    // reference2.pixelY = 367;
     reference2.imageID = "reference2"
 }
 
@@ -343,10 +332,7 @@ function showReferences(){
 }
 
 
-
 function setMapFromReferences(reference1, reference2){
-    console.log(isReferenceFilled(reference1));
-
     if(isReferenceFilled(reference1) == false){
         return;
     }
@@ -382,86 +368,71 @@ function isReferenceFilled(reference){
 ////// Popup section ///////
 
 function openPopup(reference){
-    var popup = document.getElementById('popup1');
-    popup.style.display = "block";
-
+    popupForReference.style.display = "block";
     editReferencePopup.referenceModifing = reference;
 
-    var referenceImage = document.getElementById(reference.imageID);
-    var referenceBounding = referenceImage.getBoundingClientRect();
-
-    var latitudeInput = document.getElementById("latitudeInput");
     if(reference.gpsX != null){
-        latitudeInput.value= reference.gpsY;
+        popupLatitudeInput.value = reference.gpsY;
     } else {
-        latitudeInput.value= "";
+        popupLatitudeInput.value= "";
     }
 
-    var longitudeInput = document.getElementById("longitudeInput");
     if(reference.gpsY != null){
-        longitudeInput.value = reference.gpsX;
+        popupLongitudeInput.value = reference.gpsX;
     } else {
-        longitudeInput.value = "";
+        popupLongitudeInput.value = "";
     }
+
+    movePopupToReference();
+}
+
+
+function movePopupToReference(){
+    if(editReferencePopup.referenceModifing == null){
+        return
+    }
+
+    if(popupForReference.style.display == "none"){
+        return
+    }
+
+    var referenceImage = document.getElementById(editReferencePopup.referenceModifing.imageID);
+    var referenceBounding = referenceImage.getBoundingClientRect();
 
     xPosition = referenceBounding.left + REFERENCE_IMAGE_WIDTH / 2;
     yPosition = referenceBounding.top + REFERENCE_IMAGE_HEIGHT; 
-
     yPosition = yPosition + document.documentElement.scrollTop;
 
-    popup.style.position = 'absolute';
-    popup.style.top = yPosition + "px";
-    popup.style.left = xPosition + "px";
+    popupForReference.style.position = 'absolute';
+    popupForReference.style.top = yPosition + "px";
+    popupForReference.style.left = xPosition + "px";
 }
+
 
 function closePopup(){
-    var popup = document.getElementById('popup1');
-    popup.style.display = "none";
+    popupForReference.style.display = "none";
 }
 
-function fillPopupWithCurrentLocation(){
-    console.log("Fill popup called: " + userGPSLatitude);
-    var latitudeInput = document.getElementById("latitudeInput");
-    latitudeInput.value= userGPSLatitude
-
-    var longitudeInput = document.getElementById("longitudeInput");
-    longitudeInput.value = userGPSLongitude;
-}
-
-
-function useCurrentLocation(){
-    if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(fillPopupUseCurrentLocation);
-    }
-}
-
-function fillPopupUseCurrentLocation(position){
-    var latitudeInput = document.getElementById("latitudeInput");
-    latitudeInput.value= position.coords.latitude;
-
-    var longitudeInput = document.getElementById("longitudeInput");
-    longitudeInput.value = position.coords.longitude;
+function fillPopupWithCurrentLocation(){    
+    popupLatitudeInput.value= userGPSLatitude
+    popupLongitudeInput.value = userGPSLongitude;
 }
 
 function acceptPopup(){
-    var latitudeInput = document.getElementById("latitudeInput");
-    var longitudeInput = document.getElementById("longitudeInput");
 
-    if(latitudeInput.value == ""){
+    if(popupLatitudeInput.value == ""){
         return;
     }
 
-    if(longitudeInput.value == ""){
+    if(popupLongitudeInput.value == ""){
         return;
     }
 
     editReferencePopup.referenceModifing.gpsX = longitudeInput.value;
     editReferencePopup.referenceModifing.gpsY = latitudeInput.value;
 
-    var popup = document.getElementById('popup1');
-    popup.style.display = "none";
+    popupForReference.style.display = "none";
 
-    //updates, map
     setMapFromReferences(reference1, reference2);
     setLocationCords(userGPSLongitude, userGPSLatitude);
 }
@@ -471,7 +442,7 @@ function uploadMapConfirmation(){
         return;
     }
 
-    hiddenLoadFile.click();
+    hiddenLoadFile.click();     //default load file is hidden so it clicks it for you, when clicking updated one
 }
 
 var loadFile = function(event) {
