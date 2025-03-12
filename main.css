@@ -25,6 +25,7 @@ body {
 #mapDiv {
     width: fit-content;
     margin:auto;
+    position: relative;
 }
 
 h2{
@@ -94,6 +95,16 @@ h1{
     font-size: 1.5em;
 }
 
+#mapImageDiv{
+    position:relative;
+}
+
+#gpsShow{
+   position: absolute; 
+   bottom: -5px; 
+   left: 5px; 
+   z-index: 1;
+}
 
 
 .popup{

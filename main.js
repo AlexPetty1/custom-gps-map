@@ -1,11 +1,5 @@
 window.onload = onLoad;
 
-var mapGPSBLx = null;
-var mapGPSBLy = null;
-var mapGPSWidth = null;
-var mapGPSHeight = null;
-var numberReferences = 0;
-
 var userGPSLatitude = null;
 var userGPSLongitude = null;
 var areReferencesShown = true;
@@ -22,9 +16,10 @@ const popupForReference = document.getElementById("popup1");
 const popupLongitudeInput = document.getElementById("longitudeInput");
 const popupLatitudeInput = document.getElementById("latitudeInput");
 
+const gpsShow = document.getElementById("gpsShow");
+
 const mapInfo1 = document.getElementById("mapInfo1");
 const mapInfo2 = document.getElementById("mapInfo2");
-
 
 const hiddenLoadFile = document.getElementById("hiddenLoadFile");
 const uploadFileButton = document.getElementById("uploadFile");
@@ -44,7 +39,7 @@ class Mouse{
 
 class Reference{
     constuctor(){
-      this.gpsX = null;
+      this.gpsX = null
       this.gpsY = null
       this.pixelX = null
       this.pixelY = null
@@ -58,10 +53,23 @@ class EditReferencePopup{
     }
 }
 
+
+class Map{
+    constructor(){
+        this.GPSBLx = null;
+        this.GPSBLy = null;
+        this.GPSWidth = null;
+        this.GPSHeight = null;
+        this.numberReferences = 0;
+    }
+}
+
+
 var editReferencePopup = new EditReferencePopup;
 var reference1 = new Reference();
 var reference2 = new Reference();
 var mouse = new Mouse();
+var map = new Map();
 
 
 function continouslyUpdateUserGPS() {
@@ -74,6 +82,8 @@ continouslyUpdateUserGPS();
 function setUserGPS(position){
     userGPSLatitude = position.coords.latitude;
     userGPSLongitude = position.coords.longitude;
+    message = "GPS: " + userGPSLatitude + ", " + userGPSLongitude;
+    gpsShow.textContent = message;
 }
 
 
@@ -150,7 +160,6 @@ function updateReferencePosition(reference){
         return
     }
 
-
     let mapRect = testImage.getBoundingClientRect();
     let referenceImage = document.getElementById(reference.imageID);
 
@@ -158,10 +167,8 @@ function updateReferencePosition(reference){
     xLocation = mapRect.left + reference.pixelX;
     yLocation = mapRect.bottom - reference.pixelY;
 
-
     xLocation = xLocation - REFERENCE_IMAGE_WIDTH / 2;
     yLocation = yLocation - REFERENCE_IMAGE_HEIGHT;
-
     yLocation = yLocation + document.documentElement.scrollTop;
 
     referenceImage.style.top = yLocation + 'px';
@@ -182,12 +189,12 @@ function updateMouseCords(event){
 
 
 function addingReference(){
-    if(numberReferences >= 2){
+    if(map.numberReferences >= 2){
         return;
     }
 
     let reference = reference1;
-    if(numberReferences == 1){
+    if(map.numberReferences == 1){
         reference = reference2;
     }
 
@@ -212,12 +219,11 @@ function addReference(reference, functionToRemove){
 
     updateReferencePosition(reference);
     openPopup(reference);
-    numberReferences = numberReferences + 1;
+    map.numberReferences = map.numberReferences + 1;
     
     addReferenceButton.style.borderColor = "#654f36ff";
     testImage.removeEventListener('click', functionToRemove);
 }
-
 
 
 function initiateMoveReference(){
@@ -251,6 +257,8 @@ function cancelMoveReference(event){
 
 
 
+
+
 function setupReferences(){
     reference1.imageID = "reference1"
     reference2.imageID = "reference2"
@@ -258,7 +266,7 @@ function setupReferences(){
 
 
 function setLocationCords(gpsX, gpsY){
-    if(numberReferences < 2){
+    if(map.numberReferences < 2){
         mapInfo1.textContent = "Two map references are needed to show location: \n";  
         mapInfo1.textContent += "    Click on add reference in the tool bar to add a reference";
         return;
@@ -279,14 +287,14 @@ function setLocationCords(gpsX, gpsY){
     mapInfo1.textContent = "";
 
     var mapRect = testImage.getBoundingClientRect();
-    var gpsToPixelX = mapRect.width / mapGPSWidth;
-    var gpsToPixelY = mapRect.height / mapGPSHeight;
+    var gpsToPixelX = mapRect.width / map.GPSWidth;
+    var gpsToPixelY = mapRect.height / map.GPSHeight;
 
 
     locationMarker.style.position = 'absolute';
     locationMarker.style.display = 'block';
-    xLocation = mapRect.left + (gpsX - mapGPSBLx) * gpsToPixelX;
-    yLocation = mapRect.bottom - (gpsY - mapGPSBLy) * gpsToPixelY;
+    xLocation = mapRect.left + (gpsX - map.GPSBLx) * gpsToPixelX;
+    yLocation = mapRect.bottom - (gpsY - map.GPSBLy) * gpsToPixelY;
 
     yLocation = yLocation + document.documentElement.scrollTop;
     xLocation = xLocation + document.documentElement.scrollLeft;
@@ -299,6 +307,8 @@ function setLocationCords(gpsX, gpsY){
     locationMarker.style.top = yLocation + 'px';
     locationMarker.style.left = xLocation + 'px';
 }
+
+
 
 
 
@@ -332,6 +342,8 @@ function showReferences(){
 }
 
 
+
+
 function setMapFromReferences(reference1, reference2){
     if(isReferenceFilled(reference1) == false){
         return;
@@ -348,10 +360,10 @@ function setMapFromReferences(reference1, reference2){
     var pixelToGPSX = 1/gpsToPixelX;
     var pixelToGPSY = 1/gpsToPixelY;
 
-    mapGPSWidth = pixelToGPSX * mapRect.width;
-    mapGPSHeight = pixelToGPSY * mapRect.height;
-    mapGPSBLx = reference1.gpsX - (reference1.pixelX * pixelToGPSX);
-    mapGPSBLy = reference1.gpsY - (reference1.pixelY * pixelToGPSY);
+    map.GPSWidth = pixelToGPSX * mapRect.width;
+    map.GPSHeight = pixelToGPSY * mapRect.height;
+    map.GPSBLx = reference1.gpsX - (reference1.pixelX * pixelToGPSX);
+    map.GPSBLy = reference1.gpsY - (reference1.pixelY * pixelToGPSY);
 }
 
 function isReferenceFilled(reference){
@@ -362,6 +374,10 @@ function isReferenceFilled(reference){
 
     return true;
 }
+
+
+
+
 
 
 
