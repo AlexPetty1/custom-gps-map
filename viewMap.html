@@ -23,8 +23,9 @@
                 Change Image</button>
             <br>
 
+            <canvas id="myCanvas" width="700" height="525"></canvas>
+
             <div id="mapImageDiv">
-                <img id="mapImage" width="600" src="images/mapOregon.jpg" draggable="false">
                 <p id="gpsShow">GPS: </p>
             </div>
 
@@ -33,14 +34,10 @@
             <p class="mapInfos" id= "mapInfo2"></p>
         </div>
         
+        <img id="mapImage" src="./images/mapOregon.jpg" draggable="false" hidden>
+        <img id="icon" src="./images/location.png" draggable="false" hidden>
+        <img id="referenceImage" src="images/referenceMarker.png" draggable="false" hidden>
 
-        <div id="reference1">
-            <img width="20" src="images/referenceMarker.png" draggable="false">
-        </div>
-
-        <div id="reference2">
-            <img width="20" src="images/referenceMarker.png" draggable="false">
-        </div>
 
         <div class="popup" id="popup1">
             <p id="referenceText"><b>Edit Reference</b> <br></p>
